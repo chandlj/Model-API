@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/josephchandler/machine-learning/model-api/mlruns/0/60039abc71364881a0798c0a6145c05d/artifacts
+end_time: 1625622480395
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+name: ''
+run_id: 60039abc71364881a0798c0a6145c05d
+run_uuid: 60039abc71364881a0798c0a6145c05d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1625622466230
+status: 3
+tags: []
+user_id: josephchandler
