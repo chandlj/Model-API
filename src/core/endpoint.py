@@ -1,9 +1,11 @@
 import os
 from functools import wraps
 
-from flask import request, jsonify
-from flask_restful import Resource, abort
+from flask import request, jsonify, current_app, Response
+from flask_restful import abort
+import flask_restful
 import jwt
+from werkzeug.exceptions import HTTPException
 
 def token_required(f):
     @wraps(f)
@@ -40,17 +42,17 @@ def endpoint(f):
         try:
             response = f(*args, **kwargs)
             return response
+        except HTTPException as e:
+            raise e
         except Exception as e:
-            print(e)
-            abort(500)
+            current_app.logger.error(e)
+            abort(Response(e.args, 500))
 
     return decorator
 
-class Endpoint(Resource):
+class Resource(flask_restful.Resource):
     method_decorators = [endpoint]
-    path = None
 
-class ModelEndpoint(Resource):
-    method_decorators = [endpoint]
+class Endpoint(Resource):
     path = None
-    model = None
+    model_path = None

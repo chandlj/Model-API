@@ -1,3 +1,5 @@
 api-env/
 .vscode/
 __pycache__/
+mlruns/
+test.py

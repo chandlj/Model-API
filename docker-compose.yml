@@ -19,21 +19,63 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      FLASK_ENV: ${FLASK_ENV}
-      FLASK_APP: ${FLASK_APP}
+      FLASK_ENV: 'development'
+      FLASK_APP: 'app.py'
       SECRET_KEY: ${SECRET_KEY}
+      MLFLOW_TRACKING_URI: 'postgresql+psycopg2://postgres@db:5432/postgres'
+      MLFLOW_S3_ENDPOINT_URL: 'http://minio:9000'
+      AWS_ACCESS_KEY_ID: minio
+      AWS_SECRET_ACCESS_KEY: miniopassword
     volumes:
-      - .:/src/app/
+      - .:/usr/src/app
     links:
       - db
+      - minio
     depends_on:
       - db
+      - minio
     ports:
       - "5000:5000"
+    expose:
+      - "5000"
     networks:
       - model-api
+  minio:
+    image: minio/minio:latest
+    hostname: minio
+    environment: 
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: miniopassword
+    expose:
+      - "9000"
+      - "9001"
+    volumes:
+      - minio-data:/data
+    command: server --console-address ":9001" /data/
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - model-api
+  nginx:
+    image: nginx:1.19.2-alpine
+    hostname: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    depends_on:
+      - minio
+    networks: 
+      - model-api
+
 volumes:
   data:
+    driver: local
+  minio-data:
     driver: local
 networks:
   model-api:

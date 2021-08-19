@@ -1,9 +1,8 @@
 import os
 import importlib
 import inspect
-import sys
 from flask_restful import Api
-from src.core.endpoint import Endpoint, ModelEndpoint
+from src.core.endpoint import Endpoint
 
 class Server(Api):
     def get_endpoints(self):
@@ -15,5 +14,5 @@ class Server(Api):
         for path in paths:
             mod = importlib.import_module(f'.{path}', 'src.endpoints')
             for _, obj in inspect.getmembers(mod):
-                if inspect.isclass(obj) and issubclass(obj, (Endpoint, ModelEndpoint)) and obj != Endpoint and obj != ModelEndpoint:
+                if inspect.isclass(obj) and issubclass(obj, (Endpoint)) and obj != Endpoint:
                     self.add_resource(obj, obj.path)
